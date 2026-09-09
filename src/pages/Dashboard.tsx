@@ -3,7 +3,7 @@ import { StatCard } from "../components/common/StatCard";
 export function Dashboard() {
   return (
     <div>
-      <div className="section-title"><div><h2>Dashboard del negocio</h2><p><code>GET /dashboard/resumen/:id</code> · Agregador sin BD — consolida users + properties + reservas</p></div><span className="chip" style={{ background: "var(--ink)", border: 0 }}>Setiembre 2026</span></div>
+      <div className="section-title"><div><h2>Resumen de tu actividad</h2><p>Tus ingresos, ocupación y reservas de un vistazo.</p></div><span className="chip" style={{ background: "var(--ink)", border: 0 }}>Setiembre 2026</span></div>
       <div className="stats">
         <StatCard label="Ingresos mes" value="$2,480" sub="+18% vs ago" color="#12805c" />
         <StatCard label="Ocupación" value="78%" sub="23/30 noches" color="#ff385c" />
@@ -26,7 +26,7 @@ export function Dashboard() {
           {[["Cabaña Valle Sagrado", "$920", "92%"], ["Loft Miraflores", "$810", "85%"], ["Villa Paracas", "$740", "71%"]].map(([n, m, o]) => (
             <div key={n} className="kv"><span>{n}<br /><span style={{ color: "var(--muted)", fontSize: 12 }}>Ocupación {o}</span></span><strong>{m}</strong></div>
           ))}
-          <div className="api-note"><code>GET /dashboard/propiedad/:id/detalle</code> para drill-down.</div>
+          <div className="api-note">Consejo: las propiedades con mejores fotos reservan 40% más.</div>
         </div>
       </div>
     </div>

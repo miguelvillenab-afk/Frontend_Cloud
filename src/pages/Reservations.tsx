@@ -9,7 +9,7 @@ const rows = [
 export function Reservations() {
   return (
     <div>
-      <div className="section-title"><div><h2>Mis viajes</h2><p><code>GET /reservas?usuario_id=</code> · Node + Mongo (Fase 3) — mock UI</p></div><button className="btn btn-primary">+ Nueva reserva</button></div>
+      <div className="section-title"><div><h2>Mis viajes</h2><p>Todas tus reservas, fechas y comprobantes en un solo lugar.</p></div><button className="btn btn-primary">+ Nueva reserva</button></div>
       <div className="stats">
         <StatCard label="Viajes" value="3" sub="2 confirmados" color="#ff385c" />
         <StatCard label="Noches" value="8" sub="próximas 5" color="#008489" />
@@ -25,13 +25,13 @@ export function Reservations() {
                 <td><strong>{r.id}</strong></td>
                 <td>{r.prop}<br /><span style={{ color: "var(--muted)", fontSize: 12 }}>{r.city}</span></td>
                 <td>{r.dates}</td><td><strong>{r.total}</strong></td>
-                <td><span className={`status status-${r.estado}`}>{r.estado}</span></td>
+                <td><span className={`status status-${r.estado}`}>{r.estado === "CONFIRMADA" ? "Confirmada" : r.estado === "PENDIENTE" ? "Pendiente" : "Cancelada"}</span></td>
                 <td><button className="btn btn-ghost" style={{ padding: "7px 12px", fontSize: 12 }}>★ Valorar</button></td>
               </tr>
             ))}
           </tbody>
         </table>
-        <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10 }}><code>POST /reservas</code> + <code>POST /reservas/:id/valoracion</code> — valida usuario y propiedad internamente.</p>
+        <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10 }}>¿Terminaste tu estadía? Deja una valoración para ayudar a otros viajeros.</p>
       </div>
     </div>
   );

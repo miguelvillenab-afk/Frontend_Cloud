@@ -32,7 +32,7 @@ export function PropertyDetail() {
                 <p style={{ fontSize: 14, color: "var(--ink-2)" }}>{t}</p>
               </div>
             ))}
-            <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10 }}><code>POST /reservas/:id/valoracion</code> — Fase 3</p>
+            <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10 }}>Todas las reseñas son de estadías verificadas.</p>
           </div>
         </div>
         <div className="panel booking">
@@ -44,7 +44,7 @@ export function PropertyDetail() {
           <div className="kv"><span>Limpieza</span><span>$12</span></div>
           <div className="kv"><strong>Total</strong><strong>${p.precio_noche * 3 + 12}</strong></div>
           <Link to="/mis-reservas" className="btn btn-brand" style={{ width: "100%", marginTop: 14 }}>Reservar ahora</Link>
-          <p style={{ fontSize: 12, color: "var(--muted)", textAlign: "center", marginTop: 8 }}><code>POST /reservas</code> → Fase 3</p>
+          <p style={{ fontSize: 12, color: "var(--muted)", textAlign: "center", marginTop: 8 }}>Cancelación gratuita · Pago seguro</p>
         </div>
       </div>
     </div>

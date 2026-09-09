@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { PropertyCard } from "../components/common/PropertyCard";
-import { ServiceStatus } from "../components/common/ServiceStatus";
 import { CATEGORIES, MOCK_PROPERTIES } from "../mocks/properties";
 
 export function Catalog() {
@@ -24,23 +23,23 @@ export function Catalog() {
       <section className="hero">
         <div>
           <div className="hero-badges">
-            <span className="chip">✦ Amplify + API Gateway</span>
-            <span className="chip">5 microservicios</span>
-            <span className="chip">20k registros</span>
+            <span className="chip">✦ Anfitriones verificados</span>
+            <span className="chip">Cancelación flexible</span>
+            <span className="chip">+1.200 alojamientos</span>
           </div>
           <h1>Encuentra tu próximo alojamiento</h1>
-          <p>Explora propiedades de anfitriones verificados. Reserva como huésped, publica y mide tu negocio como anfitrión, todo en una sola plataforma cloud.</p>
+          <p>Explora casas, lofts y cabañas únicas en todo el Perú. Reserva en segundos o publica tu espacio y empieza a ganar.</p>
           <div className="hero-badges">
             <a href="/registro" className="btn btn-brand">Empezar gratis →</a>
-            <a href="/analytics" className="btn" style={{ background: "rgba(255,255,255,0.14)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)" }}>Ver analytics</a>
+            <a href="/analytics" className="btn" style={{ background: "rgba(255,255,255,0.14)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)" }}>Explorar tendencias</a>
           </div>
         </div>
         <div className="hero-card">
           <strong style={{ fontSize: 14 }}>Tu escapada en 3 pasos</strong>
           <div className="hero-stats">
-            <div className="hero-stat"><strong>1.</strong><span>Regístrate como HUESPED o ANFITRION</span></div>
+            <div className="hero-stat"><strong>1.</strong><span>Crea tu cuenta gratis en 1 minuto</span></div>
             <div className="hero-stat"><strong>2.</strong><span>Explora y reserva en segundos</span></div>
-            <div className="hero-stat"><strong>3.</strong><span>Mide ocupación e ingresos</span></div>
+            <div className="hero-stat"><strong>3.</strong><span>Viaja y deja tu reseña</span></div>
           </div>
           <div className="divider" />
           <div style={{ display: "flex", gap: 8, fontSize: 13, color: "var(--muted)" }}>
@@ -56,7 +55,11 @@ export function Catalog() {
         <div><button className="search-btn" aria-label="buscar">⌕</button></div>
       </div>
 
-      <ServiceStatus />
+      <div className="svc">
+        <span className="svc-item"><span className="dot dot-ok" /> Pago seguro</span>
+        <span className="svc-item"><span className="dot dot-ok" /> Anfitriones verificados</span>
+        <span className="svc-item"><span className="dot dot-ok" /> Soporte 24/7</span>
+      </div>
 
       <div className="cats">
         {CATEGORIES.map((c) => (
@@ -65,8 +68,8 @@ export function Catalog() {
       </div>
 
       <div className="section-title">
-        <div><h2>{filtered.length} alojamientos disponibles</h2><p>Datos mock UI — <code>GET /propiedades</code> se conectará al Swagger real cuando el MS esté listo.</p></div>
-        <span className="chip" style={{ background: "var(--ink)", border: 0 }}>Paginado · 20k stress</span>
+        <div><h2>{filtered.length} alojamientos disponibles</h2><p>Alojamientos únicos con reseñas reales de huéspedes.</p></div>
+        <span className="chip" style={{ background: "var(--ink)", border: 0 }}>Lima · Cusco · Todo el Perú</span>
       </div>
 
       <div className="grid">

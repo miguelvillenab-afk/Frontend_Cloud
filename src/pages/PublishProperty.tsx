@@ -1,7 +1,7 @@
 export function PublishProperty() {
   return (
     <div>
-      <div className="section-title"><div><h2>Publica tu espacio</h2><p><code>POST /propiedades</code> · Spring Boot + MySQL — solo ANFITRION</p></div></div>
+      <div className="section-title"><div><h2>Publica tu espacio</h2><p>Completa los datos y empieza a recibir reservas hoy mismo.</p></div></div>
       <div className="detail-grid">
         <div className="panel">
           <div className="form-stack">
@@ -21,7 +21,7 @@ export function PublishProperty() {
           <p style={{ fontSize: 14 }}>📸 Sube 5+ fotos con luz natural — +40% reservas.</p>
           <p style={{ fontSize: 14, marginTop: 8 }}>💰 Precio sugerido en tu zona: <strong>$68 / noche</strong>.</p>
           <p style={{ fontSize: 14, marginTop: 8 }}>⚡ Responde en &lt;1h para el badge Superhost.</p>
-          <div className="api-note"><code>PUT /propiedades/:id</code> · <code>DELETE /propiedades/:id</code> para gestionar tu catálogo.</div>
+          <div className="api-note">Podrás editar o pausar tu publicación cuando quieras desde tu panel.</div>
         </div>
       </div>
     </div>

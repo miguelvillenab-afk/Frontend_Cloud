@@ -13,32 +13,32 @@ export function Layout() {
           <div>
             <div className="logo" style={{ marginBottom: 10 }}>
               <span className="logo-mark">⌂</span>
-              <span>CloudStay<small>Plataforma UTEC Cloud</small></span>
+              <span>CloudStay<small>Alojamientos</small></span>
             </div>
             <p style={{ fontSize: 13, color: "var(--muted)", maxWidth: 300 }}>
-              SPA en React + Vite desplegada en AWS Amplify. Consume 5 microservicios vía API Gateway HTTPS.
+              Encuentra alojamientos únicos o publica tu espacio. Viaja fácil, hospeda mejor.
             </p>
           </div>
           <div>
             <h4>Explorar</h4>
-            <a href="/">Catálogo</a>
-            <a href="/analytics">Analytics</a>
-            <a href="/dashboard">Dashboard</a>
+            <a href="/">Alojamientos</a>
+            <a href="/analytics">Tendencias</a>
+            <a href="/dashboard">Mi resumen</a>
           </div>
           <div>
             <h4>Anfitriones</h4>
-            <a href="/publicar">Publicar propiedad</a>
-            <a href="/dashboard">Rendimiento</a>
-            <a href="/analytics">Ingresos</a>
+            <a href="/publicar">Publicar tu espacio</a>
+            <a href="/dashboard">Tus ingresos</a>
+            <a href="/analytics">Destinos populares</a>
           </div>
           <div>
-            <h4>APIs · Swagger</h4>
-            <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer">Users :8000 ↗</a>
-            <a href="http://localhost:8001/docs" target="_blank" rel="noreferrer">Properties :8001 ↗</a>
-            <a href="http://localhost:8002/docs" target="_blank" rel="noreferrer">Reservations :8002 ↗</a>
+            <h4>Ayuda</h4>
+            <a href="/perfil">Mi cuenta</a>
+            <a href="/mis-reservas">Mis viajes</a>
+            <a href="/publicar">Ser anfitrión</a>
           </div>
         </div>
-        <div className="footer-bottom">© 2026 CloudStay · Frontend Cloud · Amplify + Gateway · 20k registros stress-test</div>
+        <div className="footer-bottom">© 2026 CloudStay · Viaja y hospeda con confianza</div>
       </footer>
     </div>
   );

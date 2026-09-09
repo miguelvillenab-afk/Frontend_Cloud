@@ -3,11 +3,11 @@ import { StatCard } from "../components/common/StatCard";
 export function Analytics() {
   return (
     <div>
-      <div className="section-title"><div><h2>Analytics · Data + Athena</h2><p><code>GET /analytics/ocupacion</code> · <code>GET /analytics/ingresos</code> · Glue + S3 + SQL</p></div><span className="chip" style={{ background: "var(--ink)", border: 0 }}>● Live demo mock</span></div>
+      <div className="section-title"><div><h2>Tendencias del mercado</h2><p>Descubre qué destinos e ingresos están creciendo.</p></div><span className="chip" style={{ background: "var(--ink)", border: 0 }}>● Actualizado hoy</span></div>
       <div className="stats">
-        <StatCard label="Revenue YTD" value="$28.4k" sub="+24% YoY" color="#12805c" />
-        <StatCard label="Noches vendidas" value="1,204" sub="20k rows test" color="#ff385c" />
-        <StatCard label="ADR promedio" value="$74" sub="average daily rate" color="#008489" />
+        <StatCard label="Ingresos del año" value="$28.4k" sub="+24% vs año anterior" color="#12805c" />
+        <StatCard label="Noches reservadas" value="1,204" sub="en todo el país" color="#ff385c" />
+        <StatCard label="Precio promedio" value="$74" sub="por noche" color="#008489" />
         <StatCard label="Top ciudad" value="Lima" sub="42% demanda" color="#ff8a00" />
       </div>
       <div className="detail-grid">
@@ -19,7 +19,7 @@ export function Analytics() {
             ))}
           </div>
           <div className="bar-labels">{["E", "F", "M", "A", "M", "J", "J", "A"].map((d, i) => (<span key={i}>{d}</span>))}</div>
-          <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10 }}><code>GET /analytics/ingresos?agrupacion=mensual</code> — Athena JOIN reservas × propiedades.</p>
+          <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10 }}>Ingresos mes a mes de alojamientos como el tuyo.</p>
         </div>
         <div className="panel">
           <h3>Top propiedades por reservas</h3>
@@ -31,7 +31,7 @@ export function Analytics() {
               ))}
             </tbody>
           </table>
-          <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10 }}><code>GET /analytics/top-propiedades?limit=10</code></p>
+          <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10 }}>Los alojamientos más reservados de la temporada.</p>
         </div>
       </div>
     </div>

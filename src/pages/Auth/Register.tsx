@@ -32,19 +32,19 @@ export function Register() {
     <div className="auth-wrap">
       <div className="auth-side">
         <div>
-          <span className="chip">CloudStay · UTEC</span>
+          <span className="chip">CloudStay</span>
           <h2 style={{ marginTop: 14 }}>Crea tu cuenta y empieza a viajar o a ganar.</h2>
           <ul>
-            <li>🏠 <strong>Anfitrión:</strong> publica propiedades y mide ingresos.</li>
-            <li>🧳 <strong>Huésped:</strong> reserva en 2 clics y deja valoraciones.</li>
-            <li>🔌 <strong>Live API:</strong> conectado a <code>POST /usuarios/</code> real.</li>
+            <li>🏠 <strong>Anfitrión:</strong> publica tu espacio y recibe reservas.</li>
+            <li>🧳 <strong>Huésped:</strong> reserva en 2 clics y deja reseñas.</li>
+            <li>🔒 <strong>Seguro:</strong> tus datos y pagos siempre protegidos.</li>
           </ul>
         </div>
-        <p style={{ fontSize: 12, opacity: 0.8 }}>Al registrarte aceptas términos. Tus datos viven en PostgreSQL del user_microservice.</p>
+        <p style={{ fontSize: 12, opacity: 0.8 }}>Al registrarte aceptas nuestros términos y política de privacidad.</p>
       </div>
       <div className="auth-form">
         <h1>Crear cuenta</h1>
-        <p className="sub">Elige tu rol — podrás publicar o reservar según elijas. ¿Ya tienes cuenta? <Link to="/login">Entra aquí</Link></p>
+        <p className="sub">¿Quieres viajar o publicar tu espacio? Elige tu perfil. ¿Ya tienes cuenta? <Link to="/login">Entra aquí</Link></p>
         <div className="role-toggle">
           <button type="button" className={rol === "HUESPED" ? "on-HUESPED" : ""} onClick={() => setValue("rol", "HUESPED")}>🧳 Huésped</button>
           <button type="button" className={rol === "ANFITRION" ? "on-ANFITRION" : ""} onClick={() => setValue("rol", "ANFITRION")}>🏠 Anfitrión</button>
@@ -54,9 +54,8 @@ export function Register() {
           <div className="field"><label>Email</label><input className={`input ${errors.email ? "input-err" : ""}`} placeholder="ana@email.com" {...register("email")} />{errors.email && <span className="err">{errors.email.message}</span>}</div>
           <div className="field"><label>Contraseña</label><input className={`input ${errors.password ? "input-err" : ""}`} type="password" placeholder="••••••••" {...register("password")} />{errors.password && <span className="err">{errors.password.message}</span>}</div>
           <button className="btn btn-brand" type="submit" disabled={isPending}>{isPending ? "Creando cuenta…" : "Crear cuenta →"}</button>
-          {error && <span className="err">{(error as Error).message} — ¿email ya registrado? (400)</span>}
+          {error && <span className="err">{(error as Error).message}</span>}
         </form>
-        <div className="api-note"><code>POST /usuarios/</code> → FastAPI :8000 · body <code>{`{nombre, email, password, rol}`}</code>. Requiere <code>user_microservice</code> con <code>docker-compose up</code>.</div>
       </div>
     </div>
   );
