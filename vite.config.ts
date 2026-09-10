@@ -18,7 +18,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/properties/, ''),
       },
       '/api/reservations': {
-        target: 'http://localhost:8002',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/reservations/, ''),
       },

@@ -1,9 +1,16 @@
 import { apiUsers } from "../lib/api";
-import type { MetodoPago, MetodoPagoCreate, Usuario, UsuarioCreate } from "./types";
+import type { LoginResponse, MetodoPago, MetodoPagoCreate, Usuario, UsuarioCreate, UsuarioLogin } from "./types";
 
-// Endpoints reales: user_microservice/app/main.py:16,23,30
+// Endpoints reales: user_microservice (POST /usuarios/, GET /usuarios/{id},
+// POST /usuarios/{id}/metodos-pago/, POST /login/). Nota: POST /usuarios/
+// responde 200 OK (FastAPI default, sin status_code=201 explícito).
 export async function createUser(payload: UsuarioCreate): Promise<Usuario> {
   const { data } = await apiUsers.post<Usuario>("/usuarios/", payload);
+  return data;
+}
+
+export async function loginUser(payload: UsuarioLogin): Promise<LoginResponse> {
+  const { data } = await apiUsers.post<LoginResponse>("/login/", payload);
   return data;
 }
 

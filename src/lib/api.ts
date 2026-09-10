@@ -38,6 +38,24 @@ function createClient(service: Service) {
   client.interceptors.response.use(
     (res) => res,
     (err) => {
+      // Auto-logout ante 401 (token expirado o credenciales revocadas).
+      // El backend aún no valida el token en todas las rutas, pero cuando
+      // lo haga este manejo ya estará listo.
+      if (err.response?.status === 401) {
+        localStorage.removeItem("user");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("token");
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+          window.location.href = "/login?expired=1";
+        }
+      }
+      if (!err.response) {
+        // Sin respuesta: MS apagado, red caída o bloqueo CORS del navegador.
+        // En dev deja VITE_API_*_URL vacías para usar el proxy /api/* (mismo origen).
+        return Promise.reject(
+          new Error("Sin respuesta del servidor: verifica que el microservicio esté levantado o usa el proxy /api/* en dev (CORS)")
+        );
+      }
       const msg = err.response?.data?.detail || err.message || "Error de red";
       return Promise.reject(new Error(msg));
     }

@@ -43,15 +43,16 @@ VITE_MOCK=false
 
 ## 4. Mapeo endpoints → UI
 
-### 4.1 Users — `user_microservice/app/main.py:16,23,30` + `schemas.py:22`
+### 4.1 Users — `user_microservice` (4 endpoints, con JWT)
 
 | Método | Ruta | Uso UI |
 |---|---|---|
-| `POST /usuarios/` | `schemas.UsuarioCreate{nombre,email,password,rol}` | Registro (HUESPED/ANFITRION) |
-| `GET /usuarios/{usuario_id}` | `UsuarioResponse` | Perfil / validación sesión |
+| `POST /usuarios/` | `UsuarioCreate{nombre,email,password,rol}` → `200 OK` (no 201) | Registro (HUESPED/ANFITRION) + auto-login |
+| `GET /usuarios/{usuario_id}` | `UsuarioResponse` (+ `metodos_pago`) | Perfil / hidratación tras login |
 | `POST /usuarios/{usuario_id}/metodos-pago/` | `MetodoPagoCreate` | Onboarding pago |
+| `POST /login/` | `UsuarioLogin{email,password}` → `{access_token, token_type, usuario_id, rol}` | Login email+password (JWT HS256, `exp` = +60 min default) |
 
-> Auth actual: sin JWT; password hasheada con bcrypt en BD. Frontend guarda `id_usuario` post-registro en `zustand`+`localStorage` y revalida con `GET /usuarios/{id}`. Preparado para migrar a `POST /auth/login -> {token}`.
+> Auth JWT: `POST /login/` verifica bcrypt y firma `{sub:id_usuario, rol, exp}`. `401` si falla. Frontend guarda `user+token` en `zustand`+`localStorage`, envía `Authorization: Bearer` en cada request y hace auto-logout a `/login?expired=1` ante `401`/expiración. Ningún endpoint del MS valida el token todavía (pendiente en backend). Los 20k usuarios fake usan hash `sha256` simulado y **no pueden loguear** — solo los creados vía API.
 
 ### 4.2 Properties — Spring Boot + MySQL (propuesto, contract-first)
 
@@ -105,16 +106,16 @@ src/
     api.ts              # axios instances + gateway resolver
     queryClient.ts      # tanstack config
   api/
-    users.ts            # POST /usuarios/, GET /usuarios/:id, POST .../metodos-pago
+    users.ts            # POST /usuarios/, GET /usuarios/:id, POST .../metodos-pago, POST /login/
     properties.ts       # CRUD + search
     reservations.ts
     dashboard.ts
     analytics.ts
     types.ts            # DTOs compartidos (Usuario, Propiedad, Reserva...)
   stores/
-    authStore.ts        # zustand: user, rol, login/logout
+    authStore.ts        # zustand: user, token, login(user,token)/logout, isTokenExpired
   hooks/
-    useUsers.ts, useProperties.ts ...
+    useUsers.ts (useUser, useCreateUser, useLogin, useCreateMetodoPago), useProperties.ts ...
   routes/
     index.tsx           # createBrowserRouter + ProtectedRoute
     ProtectedRoute.tsx
@@ -141,7 +142,8 @@ Router:
 ```
 /                 -> Catalog (GET /propiedades)
 /propiedad/:id    -> PropertyDetail (GET /propiedades/:id + dashboard detalle)
-/login, /registro -> Auth (POST /usuarios/)
+/login             -> Auth/Login (POST /login/ + GET /usuarios/:id hidrata perfil)
+/registro         -> Auth/Register (POST /usuarios/ + auto-login)
 /perfil           -> Profile (GET /usuarios/:id + métodos pago)
 /publicar         -> PublishProperty (POST /propiedades) [ANFITRION]
 /mis-reservas     -> Reservations (GET /reservas?usuario_id=)
@@ -159,7 +161,7 @@ Router:
 | Fase | Entregable | Criterio done |
 |---|---|---|
 | **0** | Infra: router, api.ts, .env, proxy, stores, layout, MSW | `npm run dev` ok, `npm run build` ok, al menos 1 call mock a users |
-| **1** | Users: Register, Login mock, Profile, Métodos pago | 3 endpoints users integrados, validación zod, persistencia rol |
+| **1** | Users + JWT: Register (auto-login), Login email+pass, Profile, Métodos pago | 4 endpoints users integrados, token en localStorage, auto-logout 401/expiración |
 | **2** | Properties: Catalog + filters + pagination, Detail, Publish/Edit | `GET /propiedades` paginado (20k), CRUD ANFITRION |
 | **3** | Reservations: Crear, listar, valorar | `POST /reservas` + `GET /reservas` funcionando |
 | **4** | Dashboard: agregador | 2 endpoints dashboard renderizando datos consolidados |
@@ -170,8 +172,9 @@ Router:
 
 - Paginación server-side (`page`, `limit=12/24`), `useInfiniteQuery` opcional, skeleton loaders.
 - Filtros con debounce (ciudad, capacidad, precio). `queryKey` incluye filtros.
-- Errores: `400 email ya registrado` (`main.py:19`), `404 usuario no encontrado` (`main.py:27,34`) mapeados a toasts. Fallback UI si MS caído.
-- CORS: proxy Vite en dev, Gateway CORS en prod.
+- Errores: `400 email ya registrado`, `404 usuario no encontrado`, `401 correo o contraseña incorrectos` (login) mapeados a mensajes humanos. Ante `401`/expiración (60 min default): auto-logout a `/login?expired=1`. Fallback UI si MS caído.
+- CORS: en dev deja `VITE_API_*_URL` vacías para usar el proxy Vite (`/api/users → localhost:8000`, mismo origen, sin preflight). URLs absolutas (`http://localhost:8000`) solo funcionan si el FastAPI tiene `CORSMiddleware`; sin él el navegador bloquea y el preflight devuelve `405`. En prod el Gateway maneja CORS.
+- ⚠️ Vite lee `.env` al arrancar: tras cambiarlo, reinicia `npm run dev`.
 
 ## 9. Deploy AWS Amplify
 
@@ -191,14 +194,16 @@ En consola Amplify setear `VITE_API_GATEWAY_URL` y overrides. Build verifica `ts
 ## 10. Riesgos y decisiones abiertas
 
 - Contratos de 4 MS no implementados pueden cambiar al ver Swagger real → aislar en `src/api/*.ts` para ajuste rápido. **Preguntar al dueño del MS** antes de cada fase.
-- Auth sin JWT limita seguridad; proponer `POST /auth/login` en `user_microservice`.
+- El MS aún no valida el JWT en sus rutas; el frontend ya lo envía, sin cambios cuando lo exijan.
+- Login solo funciona con usuarios creados vía API (los 20k fake usan `sha256` simulado, no bcrypt).
 - Si no hay Gateway aún, frontend funciona con URLs locales y `VITE_MOCK`.
 
-## 11. Próximos pasos (Fase 0)
+## 11. Estado (Fase 0 + 1 users/JWT hechos)
 
-1. Instalar dependencias y crear `src/lib/api.ts`, `src/api/users.ts` (real) + stubs para otros.
-2. Configurar `vite.config.ts` proxy y `.env.example`.
-3. Scaffold `stores/authStore.ts`, `routes/index.tsx`, `components/layout`.
-4. Verificar `npm run build` y `npm run dev`.
+1. ✅ Infra `src/lib/api.ts` (Bearer + auto-logout 401), `src/api/users.ts` (4 endpoints) + stubs resto.
+2. ✅ `vite.config.ts` proxy y `.env.example`.
+3. ✅ `stores/authStore.ts` (user+token), `routes/index.tsx`, `components/layout`.
+4. ✅ Login email+password, Register con auto-login, Profile + pagos, `ProtectedRoute` con expiración.
+5. Siguiente: Fase 2 Properties al tener Swagger real.
 
 > Cualquier duda sobre el microservicio (contrato, puerto, Swagger) se consulta al responsable antes de integrar.

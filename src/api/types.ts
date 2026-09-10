@@ -30,6 +30,19 @@ export interface MetodoPagoCreate {
   ultimos_cuatro: string;
 }
 
+// Auth JWT — user_microservice POST /login/
+export interface UsuarioLogin {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  usuario_id: string;
+  rol: Rol;
+}
+
 // Properties (propuesto - validar contra Swagger cuando exista)
 export interface Propiedad {
   id: string;
@@ -51,16 +64,26 @@ export interface Paginated<T> {
   limit: number;
 }
 
-// Reservations (propuesto)
+// Reservations — contrato real reservations_microservice (MongoDB)
 export interface Reserva {
-  id: string;
-  id_usuario: string;
-  id_propiedad: string;
-  fecha_inicio: string;
-  fecha_fin: string;
-  estado: "PENDIENTE" | "CONFIRMADA" | "CANCELADA";
-  puntaje?: number;
+  _id: string;
+  id_huesped: string;
+  id_propiedad: number;
+  fecha_checkin: string;
+  fecha_checkout: string;
+  precio_total: number;
+  estado_reserva: "PENDIENTE" | "CONFIRMADA" | "CANCELADA" | "COMPLETADA";
+  fecha_creacion: string;
+}
+
+export interface Resena {
+  _id: string;
+  id_reserva: string;
+  id_propiedad: number;
+  id_huesped: string;
+  calificacion: number;
   comentario?: string;
+  fecha_creacion: string;
 }
 
 // Dashboard agregador

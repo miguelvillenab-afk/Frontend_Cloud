@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createMetodoPago, createUser, getUser } from "../api/users";
-import type { MetodoPagoCreate, UsuarioCreate } from "../api/types";
+import { createMetodoPago, createUser, getUser, loginUser } from "../api/users";
+import type { MetodoPagoCreate, UsuarioCreate, UsuarioLogin } from "../api/types";
 
 export function useUser(usuario_id: string | null) {
   return useQuery({
@@ -13,6 +13,12 @@ export function useUser(usuario_id: string | null) {
 export function useCreateUser() {
   return useMutation({
     mutationFn: (payload: UsuarioCreate) => createUser(payload),
+  });
+}
+
+export function useLogin() {
+  return useMutation({
+    mutationFn: (payload: UsuarioLogin) => loginUser(payload),
   });
 }
 
