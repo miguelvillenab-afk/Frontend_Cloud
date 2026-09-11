@@ -1,30 +1,22 @@
 import axios from "axios";
 
-type Service = "users" | "properties" | "reservations" | "dashboard" | "analytics";
+// Base única del backend (API Gateway). Se inyecta en build time vía
+// VITE_API_URL, por lo que funciona igual en `npm run dev` y en el
+// `dist/` estático que sirve Amplify (donde NO existe el proxy de Vite).
+const baseURL = ((import.meta.env.VITE_API_URL as string | undefined) ?? "").replace(
+  /\/$/,
+  ""
+);
 
-const gateway = import.meta.env.VITE_API_GATEWAY_URL as string | undefined;
-
-const envMap: Record<Service, string | undefined> = {
-  users: import.meta.env.VITE_API_USERS_URL as string | undefined,
-  properties: import.meta.env.VITE_API_PROPERTIES_URL as string | undefined,
-  reservations: import.meta.env.VITE_API_RESERVATIONS_URL as string | undefined,
-  dashboard: import.meta.env.VITE_API_DASHBOARD_URL as string | undefined,
-  analytics: import.meta.env.VITE_API_ANALYTICS_URL as string | undefined,
-};
-
-function resolveBaseUrl(service: Service): string {
-  if (gateway) {
-    return `${gateway.replace(/\/$/, "")}/${service}`;
-  }
-  const local = envMap[service];
-  if (local) return local.replace(/\/$/, "");
-  // fallback to Vite proxy in dev
-  return `/api/${service}`;
+if (!baseURL && typeof window !== "undefined") {
+  console.warn(
+    "[api] VITE_API_URL no está definida: las peticiones irán al mismo origen y fallarán en Amplify. Defínela en .env (local) o en las variables de entorno de Amplify (prod)."
+  );
 }
 
-function createClient(service: Service) {
+function createClient() {
   const client = axios.create({
-    baseURL: resolveBaseUrl(service),
+    baseURL,
     headers: { "Content-Type": "application/json" },
     timeout: 10000,
   });
@@ -50,10 +42,10 @@ function createClient(service: Service) {
         }
       }
       if (!err.response) {
-        // Sin respuesta: MS apagado, red caída o bloqueo CORS del navegador.
-        // En dev deja VITE_API_*_URL vacías para usar el proxy /api/* (mismo origen).
+        // Sin respuesta: Gateway caído, red caída o bloqueo CORS del navegador
+        // (el API Gateway debe tener CORS habilitado para el origen de Amplify).
         return Promise.reject(
-          new Error("Sin respuesta del servidor: verifica que el microservicio esté levantado o usa el proxy /api/* en dev (CORS)")
+          new Error("Sin respuesta del servidor: verifica VITE_API_URL y que el API Gateway tenga CORS habilitado")
         );
       }
       const msg = err.response?.data?.detail || err.message || "Error de red";
@@ -64,11 +56,15 @@ function createClient(service: Service) {
   return client;
 }
 
-export const apiUsers = createClient("users");
-export const apiProperties = createClient("properties");
-export const apiReservations = createClient("reservations");
-export const apiDashboard = createClient("dashboard");
-export const apiAnalytics = createClient("analytics");
+// Cliente único: todos los microservicios cuelgan del mismo API Gateway
+// (rutas /usuarios, /propiedades, /reservas, /dashboard, /analytics).
+// Se mantienen los alias por compatibilidad con src/api/*.ts.
+export const api = createClient();
+export const apiUsers = api;
+export const apiProperties = api;
+export const apiReservations = api;
+export const apiDashboard = api;
+export const apiAnalytics = api;
 
 // helper to know if mock mode is on
 export const isMock = import.meta.env.VITE_MOCK === "true";

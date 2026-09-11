@@ -9,7 +9,7 @@ Desplegada en **AWS Amplify**, consume 5 microservicios vía **API Gateway HTTPS
 
 - **React 19 + TypeScript + Vite 8** — build `tsc -b && vite build` → `dist/`
 - **react-router-dom 7** — routing + `ProtectedRoute` por rol
-- **axios** — 5 clientes HTTP (`src/lib/api.ts`)
+- **axios** — cliente único con `baseURL = VITE_API_URL` (`src/lib/api.ts`)
 - **@tanstack/react-query** — cache (`retry:1`, `staleTime:2min`)
 - **zustand** — sesión (`user`, `token` en `localStorage`)
 - **react-hook-form + zod** — formularios con validación
@@ -23,7 +23,7 @@ src/
 ├── main.tsx               # QueryClientProvider + RouterProvider (sin App.tsx)
 ├── index.css              # Design system global
 ├── lib/
-│   ├── api.ts             # resolveBaseUrl + interceptores Bearer / auto-logout 401
+│   ├── api.ts             # baseURL=VITE_API_URL + interceptores Bearer / auto-logout 401
 │   └── queryClient.ts     # config TanStack Query
 ├── api/
 │   ├── types.ts           # DTOs: Usuario, Propiedad, Reserva, Dashboard…
@@ -75,26 +75,18 @@ Roles: `HUESPED | ANFITRION`. JWT HS256 `exp` +60 min; ante `401`/expiración ha
 cp .env.example .env
 ```
 
+Solo 2 variables (ver `.env.example`):
+
 | Variable | Uso |
 |---|---|
-| `VITE_API_GATEWAY_URL` | Prod: `https://xxxx.execute-api.us-east-1.amazonaws.com/prod` → `${gateway}/${service}` |
-| `VITE_API_USERS_URL` … `VITE_API_ANALYTICS_URL` | Override dev (ej. `http://localhost:8000`). **Vacías = usa proxy Vite** |
-| `VITE_MOCK` | `true` para forzar mocks |
+| `VITE_API_URL` | URL base del API Gateway HTTPS, ej. `https://xxxx.execute-api.us-east-1.amazonaws.com/prod`. Misma en dev y prod. Todos los recursos cuelgan de aquí: `/usuarios`, `/propiedades`, `/reservas`, `/dashboard`, `/analytics` |
+| `VITE_MOCK` | `true` para forzar mocks (fallback si el backend no está levantado) |
 
-Resolución en `src/lib/api.ts:15`: Gateway → URL local → fallback `/api/*` (proxy).
+> ⚠️ Vite inyecta el `.env` en build time: reinicia `npm run dev` tras cambiarlo, y en Amplify haz **nuevo build** tras cambiar una variable.
 
-> ⚠️ Vite lee `.env` al arrancar: reinicia `npm run dev` tras cambiarlo.
+### Por qué no hay proxy
 
-### Proxy dev (sin CORS)
-
-`vite.config.ts` mapea mismo-origen → microservicios:
-
-```
-/api/users → :8000 | /api/properties → :8001 | /api/reservations → :3000
-/api/dashboard → :8003 | /api/analytics → :8004
-```
-
-Deja las `VITE_API_*_URL` vacías en dev para evitar preflight/CORS. URLs absolutas solo funcionan si el FastAPI tiene `CORSMiddleware`.
+El `server.proxy` de Vite solo existe durante `npm run dev`. Amplify sirve el `dist/` estático ya compilado, donde ese proxy no existe — por eso la página cargaba pero no interactuaba. Ahora axios ataca `VITE_API_URL` directo en ambos entornos, y el CORS lo resuelve el API Gateway (debe permitir el origen de Amplify).
 
 ## Desarrollo
 
@@ -116,11 +108,11 @@ Notas: solo loguean usuarios creados vía API (los 20k fake usan hash `sha256` s
 
 ## Deploy AWS Amplify
 
-`amplify.yml`: `npm ci` → `npm run build` → artefacto `dist/`. En consola Amplify setear `VITE_API_GATEWAY_URL` (HTTPS requerido). El Gateway maneja CORS en prod.
+`amplify.yml`: `npm ci` → `npm run build` → artefacto `dist/`. En consola Amplify (Hosting → Variables de entorno) setear `VITE_API_URL` (+ `VITE_MOCK=false`) y redesplegar. El Gateway maneja CORS en prod.
 
 ## Estado y pendientes
 
-- ✅ Infra (router, api multi-servicio, proxy, auth store, layout)
+- ✅ Infra (router, cliente api único, auth store, layout)
 - ✅ Users + JWT (register/login/profile/pagos)
 - ⬜ Fase 2: `useProperties` + catálogo real paginado (`page,limit`, 20k registros, debounce)
 - ⬜ Fase 3-5: `useReservations`, `useDashboard`, `useAnalytics` + `recharts`

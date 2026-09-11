@@ -29,17 +29,12 @@ No se introduce UI framework pesado en Fase 0; se usa `src/index.css` + CSS Modu
 ## 3. Configuración y API Gateway
 
 ```env
-# .env.example
-VITE_API_GATEWAY_URL=https://xxxx.execute-api.us-east-1.amazonaws.com/prod
-VITE_API_USERS_URL=http://localhost:8000          # override dev
-VITE_API_PROPERTIES_URL=http://localhost:8001
-VITE_API_RESERVATIONS_URL=http://localhost:8002
-VITE_API_DASHBOARD_URL=http://localhost:8003
-VITE_API_ANALYTICS_URL=http://localhost:8004
+# .env.example (solo 2 variables)
+VITE_API_URL=https://xxxx.execute-api.us-east-1.amazonaws.com/prod
 VITE_MOCK=false
 ```
 
-`src/lib/api.ts` exporta `apiUsers`, `apiProperties`, etc. creados con `axios.create({ baseURL })`. Si `VITE_API_GATEWAY_URL` está seteado, se usa `${GATEWAY}/users` etc.; si no, fallback a URLs locales. Interceptor añade `Authorization` cuando exista JWT. `vite.config.ts:5` añade `server.proxy` para evitar CORS en dev (`/api/users -> localhost:8000`).
+`src/lib/api.ts` expone un cliente axios único con `baseURL = VITE_API_URL` (más alias `apiUsers`, `apiProperties`, etc. por compatibilidad con `src/api/*.ts`). Interceptor añade `Authorization` cuando exista JWT. Sin `server.proxy` en `vite.config.ts`: el proxy solo existe en `npm run dev` y desaparece en el `dist/` de Amplify, así que todo va directo al Gateway (que resuelve CORS) tanto en dev como en prod.
 
 ## 4. Mapeo endpoints → UI
 
@@ -173,7 +168,7 @@ Router:
 - Paginación server-side (`page`, `limit=12/24`), `useInfiniteQuery` opcional, skeleton loaders.
 - Filtros con debounce (ciudad, capacidad, precio). `queryKey` incluye filtros.
 - Errores: `400 email ya registrado`, `404 usuario no encontrado`, `401 correo o contraseña incorrectos` (login) mapeados a mensajes humanos. Ante `401`/expiración (60 min default): auto-logout a `/login?expired=1`. Fallback UI si MS caído.
-- CORS: en dev deja `VITE_API_*_URL` vacías para usar el proxy Vite (`/api/users → localhost:8000`, mismo origen, sin preflight). URLs absolutas (`http://localhost:8000`) solo funcionan si el FastAPI tiene `CORSMiddleware`; sin él el navegador bloquea y el preflight devuelve `405`. En prod el Gateway maneja CORS.
+- CORS: sin proxy (no existe en `dist/`/Amplify). El frontend ataca `VITE_API_URL` directo y el API Gateway debe tener CORS habilitado para el origen de Amplify. Si apuntas a un microservicio local (`http://localhost:8000`) necesitas `CORSMiddleware` en el FastAPI; sin él el navegador bloquea y el preflight devuelve `405`.
 - ⚠️ Vite lee `.env` al arrancar: tras cambiarlo, reinicia `npm run dev`.
 
 ## 9. Deploy AWS Amplify
@@ -189,7 +184,7 @@ frontend:
   cache: { paths: ["node_modules/**/*"] }
 ```
 
-En consola Amplify setear `VITE_API_GATEWAY_URL` y overrides. Build verifica `tsc -b && vite build` (`package.json:8`).
+En consola Amplify setear `VITE_API_URL` (+ `VITE_MOCK=false`) y redesplegar (las vars se inyectan en build time). Build verifica `tsc -b && vite build` (`package.json:8`).
 
 ## 10. Riesgos y decisiones abiertas
 

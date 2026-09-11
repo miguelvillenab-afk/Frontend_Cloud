@@ -7,9 +7,9 @@
 ```
 frontend-cloud/
 ├── amplify.yml              # Build Amplify: npm ci → npm run build → dist/
-├── vite.config.ts           # Vite + proxy dev /api/* → localhost:800X
+├── vite.config.ts           # Vite (sin proxy: todo va a VITE_API_URL)
 ├── index.html               # Entry HTML
-├── .env / .env.example      # URLs Gateway + overrides locales + VITE_MOCK
+├── .env / .env.example      # VITE_API_URL + VITE_MOCK (solo 2 vars)
 ├── package.json             # Scripts dev/build/lint/preview + deps
 ├── tsconfig.app.json        # TS strict (noUnusedLocals, etc.)
 ├── public/                  # Estáticos
@@ -63,10 +63,10 @@ frontend-cloud/
 | Archivo | Responsabilidad |
 |---|---|
 | `src/main.tsx:1` | `createRoot` → `QueryClientProvider(queryClient)` → `RouterProvider(router)`. Sin `App.tsx` legacy (eliminado). |
-| `vite.config.ts:5` | `server.port 5173` + `proxy`: `/api/users→:8000`, `/properties→:8001`, `/reservations→:8002`, `/dashboard→:8003`, `/analytics→:8004`. Evita CORS en dev. |
-| `src/lib/api.ts:1` | `resolveBaseUrl(service)`: si `VITE_API_GATEWAY_URL` existe → `${gateway}/${service}` (prod HTTPS); si no, `VITE_API_*_URL` o fallback `/api/*`. Interceptor añade `Authorization: Bearer <token>`; ante `401` limpia sesión y redirige a `/login?expired=1`; normaliza error a `err.response.data.detail`. Exporta `apiUsers`, `apiProperties`, `apiReservations`, `apiDashboard`, `apiAnalytics` + `isMock`. |
+| `vite.config.ts:5` | `server.port 5173`, sin `proxy` (no existe en `dist/`/Amplify; todo va directo a `VITE_API_URL`, CORS lo resuelve el Gateway). |
+| `src/lib/api.ts:1` | Cliente axios único con `baseURL = VITE_API_URL` (+ alias `apiUsers`, `apiProperties`, `apiReservations`, `apiDashboard`, `apiAnalytics` por compatibilidad). Interceptor añade `Authorization: Bearer <token>`; ante `401` limpia sesión y redirige a `/login?expired=1`; normaliza error a `err.response.data.detail`. Exporta `api` + `isMock`. |
 | `src/lib/queryClient.ts:1` | `retry:1`, `refetchOnWindowFocus:false`, `staleTime:2min`. |
-| `.env.example:1` | `VITE_API_GATEWAY_URL` + 5 overrides locales + `VITE_MOCK`. `.env` ignorado en `.gitignore:14`. |
+| `.env.example:1` | `VITE_API_URL` + `VITE_MOCK` (solo 2 vars). `.env` ignorado en `.gitignore:14`. |
 | `amplify.yml:1` | `npm ci` → `npm run build` (`tsc -b && vite build`) → artefacto `dist/`. Env vars se setean en consola Amplify. |
 
 ## 3. Capa de datos (`src/api/`)
@@ -165,4 +165,4 @@ Tokens: `--brand:#ff385c`, `--ink:#1a1d23`, `--muted`, `--line`, `--surface`, `-
 2. Conectar `Catalog` a `listProperties()` real + `Pagination.tsx` + `Filters.tsx` (20k, debounce).
 3. Probar login solo con usuarios creados vía API (los 20k fake usan `sha256` simulado y devuelven 401).
 4. `recharts` para Analytics + `MSW handlers` si `VITE_MOCK=true`.
-5. Tests + `npm run lint` limpio + deploy Amplify con `VITE_API_GATEWAY_URL`.
+5. Tests + `npm run lint` limpio + deploy Amplify con `VITE_API_URL`.
