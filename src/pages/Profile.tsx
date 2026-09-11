@@ -25,10 +25,10 @@ export function Profile() {
 
   return (
     <div>
-      <div className="section-title"><div><h2>Mi perfil</h2><p>Gestiona tus datos y métodos de pago.</p></div><span className={`role-badge role-${user.rol}`}>{user.rol === "HUESPED" ? "Huésped" : "Anfitrión"}</span></div>
+      <div className="section-title"><div><h2>Mi perfil</h2><p>Gestiona tus datos y métodos de pago.</p></div><span className={`role-badge role-${data?.rol ?? user.rol}`}>{(data?.rol ?? user.rol) === "HUESPED" ? "Huésped" : "Anfitrión"}</span></div>
       <div className="profile-grid">
         <div className="panel profile-card">
-          <div className="avatar-lg">{user.nombre.charAt(0).toUpperCase()}</div>
+          <div className="avatar-lg">{(data?.nombre ?? user.nombre ?? "U").charAt(0).toUpperCase()}</div>
           <h3 style={{ marginTop: 12 }}>{data?.nombre}</h3>
           <p style={{ color: "var(--muted)", fontSize: 13 }}>{data?.email}</p>
           <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>Miembro desde {data?.fecha_registro?.slice(0, 10)}</p>
